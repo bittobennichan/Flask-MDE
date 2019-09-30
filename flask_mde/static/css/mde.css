@@ -1,0 +1,172 @@
+
+.wmd-prompt-background
+{
+	background-color: Black;
+}
+
+.wmd-prompt-dialog
+{
+    border: none;
+    background-color: #fff;
+    padding: 10px;
+	border-radius: 0.3rem;
+	
+}
+
+.wmd-prompt-dialog > div {
+	font-size: 0.8em;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+}
+
+.wmd-prompt-dialog > form > input[type="text"] {
+	border: 1px solid #999999;
+	color: black;
+}
+
+.wmd-prompt-dialog > form > input[type="button"]{
+	background: #fff;
+	font-family: trebuchet MS, helvetica, sans-serif;
+	font-size: 0.8em;
+	border: 0.5px solid #ddd;
+    padding: 8px;
+    float: right;
+    margin: 15px 5px 5px 5px !important;
+}
+
+.wmd-prompt-dialog > form > input:nth-child(2){
+	background-color: #50a1ff;
+	border-color: #50a1ff;
+	color:#fff;
+}
+
+.wmd-prompt-dialog hr{
+    border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(134, 57, 57, 0.4);
+}
+
+/* Editor specific tyles */
+
+#wmd-input{
+    height: 300px;
+    width: 100%;
+    padding:10px;
+    background-color: #FFFFFF;
+    color:#272727;
+	border: 1px solid #c8cccc;
+    box-sizing: border-box;
+    margin-top: 0;
+    border-top: none;
+    line-height:1.33;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    resize: vertical;
+
+}
+
+#wmd-preview{
+	width: 100%;
+    width:calc(100% - 1px);
+}
+
+/* code preview styles */
+
+#wmd-preview {
+    font-size: 11.5pt;
+    background-color: #fff;
+    color:#272727;
+    word-wrap: break-word;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  
+}
+
+
+#wmd-preview pre {
+background-color: #EFF0F1;
+padding: 10px;
+border:none;
+overflow-x: auto;
+font-size: 10pt;
+}
+
+#wmd-preview img { 
+    max-width:100%;
+}
+
+#wmd-preview blockquote{
+    background-color:#F8F8F7;
+    padding:10px;
+    margin:0px;
+    border-left:3px solid #c8cccc;
+    margin:10px 0px;
+    padding: 0.5px 10px;
+
+}
+
+/* Editor Button styles */
+
+#wmd-button-bar{
+    border: 1px solid #c8cccc;
+    border-radius: 3px 3px 0px 0px;
+    padding-left:10px;
+}
+
+.wmd-button-row {
+	position: relative;
+	margin-left: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+	margin-top: 10px;
+	padding: 0px;
+	height: 20px;
+}
+
+.wmd-button {
+    width: 20px;
+    height: 20px;
+    padding-left: 2px;
+    padding-right: 3px;
+    position: absolute;
+    display: inline-block;
+    list-style: none;
+    cursor: pointer;
+}
+
+
+.wmd-button > span {
+    background-image: url(../images/classic-buttons.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+/* 
+    These are required for the break lines (ie. '|')
+    in the button bar.
+*/
+
+.wmd-spacer {
+	width: 1px;
+	height: 20px;
+	margin-left: 14px;
+	position: absolute;
+	background-color: Silver;
+	display: inline-block;
+	list-style: none;
+}
+
+.wmd-spacer1
+{
+    left: 50px;
+}
+.wmd-spacer2
+{
+    left: 175px;
+}
+.wmd-spacer3
+{
+    left: 300px;
+}

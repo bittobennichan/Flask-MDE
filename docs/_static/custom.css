@@ -1,0 +1,19 @@
+@media screen and (max-width:1008px){
+    div.sphinxsidebar {
+        display: none;
+    }
+    div.footer {
+        display: none;
+    }
+    div.document {
+        width: 100%;
+    }
+    div.bodywrapper{
+        margin-left: 0;
+    }
+}
+@media screen and (min-width:1008px){
+    div.document {
+        width: 1024px;
+    }
+}
