@@ -25,10 +25,6 @@ to integrate the Pagedown editor into your Flask application.
 
 Read the :ref:`User Guide <User Guide>` to get started.
 
-*Screenshot:*
-
-.. image:: _static/screenshot.png
-
 
 Table of Contents
 -----------------
