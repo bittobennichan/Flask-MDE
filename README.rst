@@ -27,3 +27,6 @@ Pagedown is a Markdown editor and previewer popularised by its use on
 to integrate the Pagedown editor into your Flask application.
 
 Read the `User Guide <https://flask-mde.readthedocs.io/en/latest/user-guide.html>`_ to get started.
+
+.. image:: assets/website.png
+    :target: https://flask-mde.readthedocs.io/en/latest/index.html
