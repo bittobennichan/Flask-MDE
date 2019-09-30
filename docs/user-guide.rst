@@ -12,7 +12,7 @@ run the command
 
 ..  code-block:: text
 
-    $ pip install flask_mde
+    $ pip install Flask-MDE
 
 in your terminal.
 
