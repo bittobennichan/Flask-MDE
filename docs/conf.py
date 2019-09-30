@@ -62,7 +62,7 @@ html_theme_options = {
     'description': 'Pagedown Editor with WTForms integration for Flask',
     'sidebar_collapse': False,
     'github_user': 'bittobennichan',
-    'github_repo': 'flask_mde',
+    'github_repo': 'Flask-MDE',
     'github_button': True,
     'sidebar_header': '#3E4349',
     'fixed_sidebar': True,
