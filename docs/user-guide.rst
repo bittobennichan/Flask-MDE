@@ -25,7 +25,7 @@ For one Flask application, create the :py:class:`Mde <flask_mde.models.Mde>` obj
 ..  code-block:: python
 
     from flask import Flask, render_template
-    from flask_mde.flask_mde import Mde
+    from flask_mde import Mde
 
     app = Flask(__name__)
     mde = Mde(app)
@@ -41,7 +41,7 @@ an argument to *render_template*.
 
 Let's take a look at the various components that need to be included in the template
 
-* The class:meth:`editor method <flask_mde.models.Mde.editor>` of the object will render the Pagedown editor in the template. 
+* The :py:meth:`editor method <flask_mde.models.Mde.editor>` of the object will render the Pagedown editor in the template. 
 
 * The :py:attr:`css property <flask_mde.models.Mde.css>` will include the css files.
 

@@ -1,7 +1,7 @@
 Flask-MDE: Pagedown for Flask
 =============================
 
-Version |release| :ref:`Install <Installation>`
+Release v\ |release| :ref:`Install <Installation>`
 
 .. image:: https://img.shields.io/pypi/v/flask_mde
     :target: https://pypi.org/project/flask_mde/
@@ -11,6 +11,10 @@ Version |release| :ref:`Install <Installation>`
 
 .. image:: https://img.shields.io/pypi/pyversions/flask_mde
     :target: https://pypi.org/project/flask_mde/
+
+.. image:: https://readthedocs.org/projects/flask-mde/badge/?version=latest
+    :target: https://flask-mde.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 -------------------
 
@@ -24,7 +28,6 @@ Pagedown is a Markdown editor and previewer popularised by its use on
 to integrate the Pagedown editor into your Flask application.
 
 Read the :ref:`User Guide <User Guide>` to get started.
-
 
 Table of Contents
 -----------------

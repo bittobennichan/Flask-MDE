@@ -64,6 +64,7 @@ html_theme_options = {
     'github_user': 'bittobennichan',
     'github_repo': 'Flask-MDE',
     'github_button': True,
+    'github_type': 'star',
     'sidebar_header': '#3E4349',
     'fixed_sidebar': True,
     'github_banner': True,
