@@ -1,7 +1,7 @@
 Flask-MDE: Pagedown for Flask
 =============================
 
-Release v0.0.1
+Release v1.0.0
 
 .. image:: https://img.shields.io/pypi/v/flask_mde
     :target: https://pypi.org/project/flask_mde/
@@ -28,5 +28,5 @@ to integrate the Pagedown editor into your Flask application.
 
 Read the `User Guide <https://flask-mde.readthedocs.io/en/latest/user-guide.html>`_ to get started.
 
-.. image:: assets/website.png
+.. image:: https://raw.githubusercontent.com/bittobennichan/Flask-MDE/master/assets/website.png
     :target: https://flask-mde.readthedocs.io/en/latest/index.html
