@@ -65,14 +65,14 @@
 
 }
 
-#wmd-preview{
+#wmd-preview, .make-pretty{
 	width: 100%;
     width:calc(100% - 1px);
 }
 
 /* code preview styles */
 
-#wmd-preview {
+#wmd-preview, make-pretty {
     font-size: 11.5pt;
     background-color: #fff;
     color:#272727;
@@ -82,7 +82,7 @@
 }
 
 
-#wmd-preview pre {
+#wmd-preview pre, .make-pretty pre {
 background-color: #EFF0F1;
 padding: 10px;
 border:none;
@@ -90,11 +90,11 @@ overflow-x: auto;
 font-size: 10pt;
 }
 
-#wmd-preview img { 
+#wmd-preview img, .make-pretty img { 
     max-width:100%;
 }
 
-#wmd-preview blockquote{
+#wmd-preview blockquote, .make-pretty blockquote{
     background-color:#F8F8F7;
     padding:10px;
     margin:0px;

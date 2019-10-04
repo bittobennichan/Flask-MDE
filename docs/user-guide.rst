@@ -166,3 +166,26 @@ Once you have converted markdown to HTML, it is a good idea to sanitize the HTML
 before displaying it on your site.
 
 `Bleach <https://pypi.org/project/bleach/>`_ library can be used for this.
+
+Making HTML pretty
+##################
+When you convert the markdown to HTML and displayit back on your application, 
+it won't be similar to the preview shown. This is because `Google code-prettify <https://github.com/google/code-prettify>`_'s 
+``prettyPrint`` function is not called.
+
+Flask-MDE provides the ``make-pretty`` css class to make your HTML similar to that shown in the preview.
+
+..  code-block:: html
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        {{mde.css}}
+    </head>
+    <body>
+        <div class="make-pretty">
+            {{output_html|safe}}
+        </div>
+        {{mde.js}}
+    </body>
+    </html>

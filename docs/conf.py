@@ -22,7 +22,7 @@ copyright = '2019, Bitto Bennichan'
 author = 'Bitto Bennichan'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.1.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -66,7 +66,7 @@ html_theme_options = {
     'github_button': True,
     'github_type': 'star',
     'sidebar_header': '#3E4349',
-    'fixed_sidebar': True,
+    'fixed_sidebar': False,
     'github_banner': True,
     'logo': 'logo.png',
     'show_powered_by': True

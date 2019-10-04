@@ -37,3 +37,4 @@ Table of Contents
 
     user-guide
     api
+    changelog
