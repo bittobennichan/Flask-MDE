@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Editor{% endblock %}
+{% block head %}
+    {{ super() }}
+    {{mde.css}}
+{% endblock %}
+{% block content %}
+    <h1> Flask-MDE Editor
+        <br class="mob" />
+        <a href="https://github.com/bittobennichan/Flask-MDE/">
+            <img src="https://img.shields.io/github/watchers/bittobennichan/Flask-MDE?style=social"></a>
+        <a href="https://pypi.org/project/flask_mde/">
+            <img src="https://img.shields.io/pypi/v/flask_mde"></a>
+    </h1>
+    <form action="{{url_for('index')}}" method="POST">
+        {{form.csrf_token}}
+	    {{form.editor}}
+        {{form.submit}}
+    </form>
+    <h2>Preview</h2>
+    {{mde.preview}}
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    {{ mde.js }}
+{% endblock %}

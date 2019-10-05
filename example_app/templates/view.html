@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Review{% endblock %}
+{% block head %}
+    {{ super() }}
+    {{mde.css}}
+{% endblock %}
+{% block content %}
+    <a href="{{ url_for('index')}}"> <- Back to editor </a>
+    <h1> Review </h1>
+    <div class="make-pretty">
+        {{code|safe}}
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    {{ mde.js }}
+{% endblock %}

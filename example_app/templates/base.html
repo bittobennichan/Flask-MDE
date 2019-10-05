@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+{% block head %}
+    <title>{% block title %}{% endblock %} - Flask-MDE Live</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='commonstyles.css') }}">
+{% endblock %}
+</head>
+<body>
+    <!-- Error Flasher-->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul class=flashes>
+            {% for category, message in messages %}
+                <li class="{{ category }}">{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <!-- Contents of different pages-->
+    {% block content %}{% endblock %}
+    <!-- Scripts -->        
+    {% block scripts %}{% endblock %}
+</body>
+</html>
