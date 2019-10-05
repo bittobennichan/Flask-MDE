@@ -189,3 +189,12 @@ Flask-MDE provides the ``make-pretty`` css class to make your HTML similar to th
         {{mde.js}}
     </body>
     </html>
+
+Example application
+###################
+
+An example application is included in the `Github repository <https://github.com/bittobennichan/Flask-MDE/tree/master/example_app>`_. 
+This application includes code for WTForms integration, HTML sanitization and displays
+prettified HTML back to the user. You can use this as a rough guide if you get stuck.
+
+`See a live demo of the example application <https://markdowneditor.pythonanywhere.com/>`_.
