@@ -72,7 +72,7 @@
 
 /* code preview styles */
 
-#wmd-preview, make-pretty {
+#wmd-preview, .make-pretty {
     font-size: 11.5pt;
     background-color: #fff;
     color:#272727;

@@ -1,7 +1,7 @@
 Flask-MDE: Pagedown for Flask
 =============================
 
-Release v1.1.0
+Release v1.1.1
 
 .. image:: https://img.shields.io/pypi/v/flask_mde
     :target: https://pypi.org/project/flask_mde/

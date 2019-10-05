@@ -29,7 +29,7 @@ loadMDE = function(){
 }
 
 makePreviewPretty = function(){
-    let preview_items = document.getElementsByClassName('mde-preview');
+    let preview_items = document.getElementsByClassName('make-pretty');
     for (var i = 0; i < preview_items.length; i++) {
         code_elems = preview_items[i].getElementsByTagName('pre');
         for (var i = 0; i < code_elems.length; i++) {
