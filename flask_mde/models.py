@@ -44,7 +44,6 @@ class Mde(object):
             return app
     """
     def __init__(self, app=None):
-        app.context_processor(self.context_processor)
         if app is not None:
             self.init_app(app)
 
@@ -52,6 +51,7 @@ class Mde(object):
         return dict(mde=self)
 
     def init_app(self, app):
+        app.context_processor(self.context_processor)
         self.static_url_path = app.static_url_path + '/flask_mde'
         flask_mde_blueprint = Blueprint(
             'flask_mde',

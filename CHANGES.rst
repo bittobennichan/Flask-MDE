@@ -3,6 +3,11 @@ Flask-MDE Changelog
 
 FLask-MDE follows `Semantic Versioning 2.0.0 <https://semver.org/>`_
 
+1.1.2
+-----
+
+* Fixed `application factory usage issue. <https://github.com/bittobennichan/Flask-MDE/issues/2>`_
+
 1.1.1
 -----
 
