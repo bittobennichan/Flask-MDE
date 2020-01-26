@@ -18,6 +18,7 @@ mde = Mde(app)
 app.config['SECRET_KEY'] = os.urandom(24)
 
 
+# A helper fuction to flash all errors
 def error_flasher(form):
     """Flashes all error encountered while processing the form."""
     for field, message_list in form.errors.items():
@@ -46,12 +47,21 @@ def index():
         # Save to session
         session['editor'] = request.form['editor']
         # Convert markdown to html
-        html = markdown.markdown(request.form['editor'])
+        # https://github.com/Python-Markdown/markdown/wiki/Third-Party-Extensions
+        # https://facelessuser.github.io/pymdown-extensions/extensions/tilde/
+        # https://python-markdown.github.io/extensions/
+        # pymdownx.tilde is from pymdown-extensions
+        html = markdown.markdown(
+            request.form['editor'],
+            extensions=['nl2br', 'smarty', 'pymdownx.tilde', 'extra']
+        )
         # Tags deemed safe
         allowed_tags = [
-            'a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
-            'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'img',
-            'h1', 'h2', 'h3', 'p', 'br'
+            'a', 'abbr', 'acronym', 'b', 'blockquote', 'br',
+            'code', 'dd', 'del', 'div', 'dl', 'dt', 'em',
+            'em', 'h1', 'h2', 'h3', 'hr', 'i', 'img', 'li',
+            'ol', 'p', 'pre', 's', 'strong', 'sub', 'sup',
+            'table', 'tbody', 'td', 'th', 'thead', 'tr', 'ul'
         ]
         # Attributes deemed safe
         allowed_attrs = {
