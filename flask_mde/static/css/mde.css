@@ -104,6 +104,21 @@ font-size: 10pt;
 
 }
 
+
+#wmd-preview table, .make-pretty table{
+    border-collapse: collapse;
+    display: block;
+    width: 100%;
+    overflow: auto;
+}
+  
+#wmd-preview th, #wmd-preview td, .make-pretty th, .make-pretty td {
+    text-align: center;
+    padding: 6px 13px;
+    border: 1px solid #dfe2e5;
+}
+
+
 /* Editor Button styles */
 
 #wmd-button-bar{
