@@ -3,6 +3,11 @@ Flask-MDE Changelog
 
 FLask-MDE follows `Semantic Versioning 2.0.0 <https://semver.org/>`_
 
+1.2.0
+-----
+
+* Added support for `pagedown-extra <https://github.com/jmcmanus/pagedown-extra>`_.
+
 1.1.2
 -----
 

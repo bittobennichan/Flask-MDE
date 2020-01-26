@@ -5,7 +5,7 @@ with open("README.rst", "r") as f:
 
 setuptools.setup(
     name='Flask-MDE',
-    version='1.1.2',
+    version='1.2.0',
     url='https://github.com/bittobennichan/Flask-MDE',
     license='MIT',
     author='Bitto Bennichan',
@@ -30,6 +30,7 @@ setuptools.setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules'
     ],

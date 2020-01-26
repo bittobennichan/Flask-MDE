@@ -21,7 +21,7 @@ Release v1.2.0 | `Example application <https://markdowneditor.pythonanywhere.com
 `Google code-prettify <https://github.com/google/code-prettify>`_ for 
 `Flask <https://palletsprojects.com/p/flask/>`_. 
 `WTForms <https://wtforms.readthedocs.io/en/stable/index.html>`_ integration supported.
-From v1.2.0 Flask-MDE supports `pagedown-extra <https://github.com/jmcmanus/pagedown-extra>`_
+From v1.2.0 Flask-MDE supports `pagedown-extra <https://github.com/jmcmanus/pagedown-extra>`_.
 
 Pagedown is a Markdown editor and previewer popularised by its use on 
 StackOverflow. You can use the *Flask-MDE* extension 
