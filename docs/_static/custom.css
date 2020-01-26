@@ -16,8 +16,14 @@
     div.document {
         width: 1024px;
     }
+    #flask-mde h1{
+        display: none;
+    }
 }
 div.footer{
     margin-top:0;
     margin-bottom: 0;
+}
+div.sphinxsidebar a{
+    font-size: 140%;
 }
