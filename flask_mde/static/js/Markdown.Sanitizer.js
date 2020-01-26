@@ -20,18 +20,34 @@
     }
 
     // (tags that can be opened/closed) | (tags that stand alone)
-    var basic_tag_whitelist = /^(<\/?(b|blockquote|code|del|dd|dl|dt|em|h1|h2|h3|i|kbd|li|ol|p|pre|s|sup|sub|strong|strike|ul)>|<(br|hr)\s?\/?>)$/i;
+    var basic_tag_whitelist = /^(<\/?(b|blockquote|code|del|dd|dl|dt|em|h1|h2|h3|i|kbd|li|ol(?: start="\d+")?|p|pre|s|sup|sub|strong|strike|ul)>|<(br|hr)\s?\/?>)$/i;
     // <a href="url..." optional title>|</a>
-    var a_white = /^(<a\shref="((https?|ftp):\/\/|\/)[-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\)]+"(\stitle="[^"<>]+")?\s?>|<\/a>)$/i;
+    var a_white = /^(<a\shref="((https?|ftp):\/\/|\/)[-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\)*[\]$]+"(\stitle="[^"<>]+")?\s?>|<\/a>)$/i;
 
     // <img src="url..." optional width  optional height  optional alt  optional title
-    var img_white = /^(<img\ssrc="(https?:\/\/|\/)[-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\)]+"(\swidth="\d{1,3}")?(\sheight="\d{1,3}")?(\salt="[^"<>]*")?(\stitle="[^"<>]*")?\s?\/?>)$/i;
+    var img_white = /^(<img\ssrc="(https?:\/\/|\/)[-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\)*[\]$]+"(\swidth="\d{1,3}")?(\sheight="\d{1,3}")?(\salt="[^"<>]*")?(\stitle="[^"<>]*")?\s?\/?>)$/i;
 
     function sanitizeTag(tag) {
         if (tag.match(basic_tag_whitelist) || tag.match(a_white) || tag.match(img_white))
             return tag;
-        else
-            return "";
+        else {
+            var anyChange = false;
+            // if it looks like it *might* be valid, then try percent-encoding illegal characters in the src or href attribute
+            // and then try the whitelist again -- if that fixes it, then replace the found tag with the fixed one.
+            var encoded = tag.replace(/^(<a href="|<img src=")([^"]*)/i, function (wholematch, prefix, url) {
+                return prefix + url.replace(/[^-A-Za-z0-9+&@#\/%?=~_|!:,.;\(\)*[\]$]/g, function (c) {
+                    anyChange = true;
+                    if (c == "'") // this is the only character that isn't in our whitelist and that is returned unchanged by encodeURIComponent()
+                        return "%27";
+                    else
+                        return encodeURIComponent(c);
+                    
+                });
+            });
+            if (anyChange && (encoded.match(a_white) || encoded.match(img_white)))
+                return encoded;
+        }
+        return "";
     }
 
     /// <summary>

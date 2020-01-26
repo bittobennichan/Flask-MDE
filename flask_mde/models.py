@@ -136,6 +136,7 @@ class Mde(object):
             "Markdown.Converter.js",
             "Markdown.Sanitizer.js",
             "Markdown.Editor.js",
+            "Markdown.Extra.js",
             "mde.js"
         ]
         for file_name in js_files:
