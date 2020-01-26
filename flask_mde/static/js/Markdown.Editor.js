@@ -17,41 +17,99 @@
             isOpera: /opera/.test(nav.userAgent.toLowerCase())
         };
 
+    var defaultsStrings = {
+        bold: "Strong <strong> Ctrl+B",
+        boldexample: "strong text",
+
+        italic: "Emphasis <em> Ctrl+I",
+        italicexample: "emphasized text",
+
+        link: "Hyperlink <a> Ctrl+L",
+        linkdescription: "enter link description here",
+        linkdialog: "<p><b>Insert Hyperlink</b></p><p>http://example.com/ \"optional title\"</p>",
+
+        quote: "Blockquote <blockquote> Ctrl+Q",
+        quoteexample: "Blockquote",
+
+        code: "Code Sample <pre><code> Ctrl+K",
+        codeexample: "enter code here",
+
+        image: "Image <img> Ctrl+G",
+        imagedescription: "enter image description here",
+        imagedialog: "<p><b>Insert Image</b></p><p>http://example.com/images/diagram.jpg \"optional title\"</p>",
+
+        olist: "Numbered List <ol> Ctrl+O",
+        ulist: "Bulleted List <ul> Ctrl+U",
+        litem: "List item",
+
+        heading: "Heading <h1>/<h2> Ctrl+H",
+        headingexample: "Heading",
+
+        hr: "Horizontal Rule <hr> Ctrl+R",
+
+        undo: "Undo - Ctrl+Z",
+        redo: "Redo - Ctrl+Y",
+        redomac: "Redo - Ctrl+Shift+Z",
+
+        help: "Markdown Editing Help",
+
+        ok: "OK",
+        cancel: "Cancel"
+    };
+
 
     // -------------------------------------------------------------------
     //  YOUR CHANGES GO HERE
     //
-    // I've tried to localize the things you are likely to change to 
+    // I've tried to localize the things you are likely to change to
     // this area.
     // -------------------------------------------------------------------
-
-    // The text that appears on the upper part of the dialog box when
-    // entering links.
-    var linkDialogText = "<h5>Insert Hyperlink</h5><hr/>";
-    var imageDialogText = "<h5>Insert Image Link</h5><hr/>";
 
     // The default text that appears in the dialog input box when entering
     // links.
     var imageDefaultText = "http://";
     var linkDefaultText = "http://";
 
-    var defaultHelpHoverTitle = "Markdown Editing Help";
-
     // -------------------------------------------------------------------
     //  END OF YOUR CHANGES
     // -------------------------------------------------------------------
 
-    // help, if given, should have a property "handler", the click handler for the help button,
-    // and can have an optional property "title" for the button's tooltip (defaults to "Markdown Editing Help").
-    // If help isn't given, not help button is created.
+    // options, if given, can have the following properties:
+    //   options.helpButton = { handler: yourEventHandler }
+    //   options.strings = { italicexample: "slanted text" }
+    //   options.wrapImageInLink = true
+    //   options.convertImagesToLinks = true
+    // `yourEventHandler` is the click handler for the help button.
+    // If `options.helpButton` isn't given, not help button is created.
+    // `options.strings` can have any or all of the same properties as
+    // `defaultStrings` above, so you can just override some string displayed
+    // to the user on a case-by-case basis, or translate all strings to
+    // a different language.
+    //
+    // For backwards compatibility reasons, the `options` argument can also
+    // be just the `helpButton` object, and `strings.help` can also be set via
+    // `helpButton.title`. This should be considered legacy.
     //
     // The constructed editor object has the methods:
     // - getConverter() returns the markdown converter object that was passed to the constructor
     // - run() actually starts the editor; should be called after all necessary plugins are registered. Calling this more than once is a no-op.
     // - refreshPreview() forces the preview to be updated. This method is only available after run() was called.
-    Markdown.Editor = function (markdownConverter, idPostfix, help) {
+    Markdown.Editor = function (markdownConverter, idPostfix, options) {
+        
+        options = options || {};
 
+        if (typeof options.handler === "function") { //backwards compatible behavior
+            options = { helpButton: options };
+        }
+        options.strings = options.strings || {};
+        if (options.helpButton) {
+            options.strings.help = options.strings.help || options.helpButton.title;
+        }
+        var getString = function (identifier) { return options.strings[identifier] || defaultsStrings[identifier]; }
+        
         idPostfix = idPostfix || "";
+
+        this.getPostfix = function () { return idPostfix; }
 
         var hooks = this.hooks = new Markdown.HookCollection();
         hooks.addNoop("onPreviewRefresh");       // called with no arguments after the preview has been refreshed
@@ -60,6 +118,10 @@
                                                   * its own image insertion dialog, this hook should return true, and the callback should be called with the chosen
                                                   * image url (or null if the user cancelled). If this hook returns false, the default dialog will be used.
                                                   */
+        hooks.addNoop("imageConvertedToLink");  // called with no arguments if an image was converted 
+        hooks.addFalse("insertLinkDialog");     /* called with one parameter: a callback to be called with the URL.
+                                                 * works identical to insertImageDialog (see above)
+                                                 */
 
         this.getConverter = function () { return markdownConverter; }
 
@@ -71,7 +133,7 @@
                 return; // already initialized
 
             panels = new PanelCollection(idPostfix);
-            var commandManager = new CommandManager(hooks);
+            var commandManager = new CommandManager(hooks, getString, markdownConverter, options.wrapImageInLink, options.convertImagesToLinks);
             var previewManager = new PreviewManager(markdownConverter, panels, function () { hooks.onPreviewRefresh(); });
             var undoManager, uiManager;
 
@@ -81,9 +143,14 @@
                     if (uiManager) // not available on the first call
                         uiManager.setUndoRedoButtonStates();
                 }, panels);
+                this.textOperation = function (f) {
+                    undoManager.setCommandMode();
+                    f();
+                    that.refreshPreview();
+                }
             }
 
-            uiManager = new UIManager(idPostfix, panels, undoManager, previewManager, commandManager, help);
+            uiManager = new UIManager(idPostfix, panels, undoManager, previewManager, commandManager, options.helpButton, getString);
             uiManager.setUndoRedoButtonStates();
 
             var forceRefresh = that.refreshPreview = function () { previewManager.refresh(true); };
@@ -155,7 +222,7 @@
             beforeReplacer = function (s) { that.before += s; return ""; }
             afterReplacer = function (s) { that.after = s + that.after; return ""; }
         }
-        
+
         this.selection = this.selection.replace(/^(\s*)/, beforeReplacer).replace(/(\s*)$/, afterReplacer);
     };
 
@@ -176,7 +243,7 @@
         var regexText;
         var replacementText;
 
-        // chrome bug ... documented at: http://meta.stackoverflow.com/questions/63307/blockquote-glitch-in-editor-in-chrome-6-and-7/65985#65985
+        // chrome bug ... documented at: http://meta.stackexchange.com/questions/63307/blockquote-glitch-in-editor-in-chrome-6-and-7/65985#65985
         if (navigator.userAgent.match(/Chrome/)) {
             "X".match(/()./);
         }
@@ -223,14 +290,14 @@
         }
     };
 
-    // end of Chunks 
+    // end of Chunks
 
     // A collection of the important regions on the page.
     // Cached so we don't have to keep traversing the DOM.
     // Also holds ieCachedRange and ieCachedScrollTop, where necessary; working around
     // this issue:
     // Internet explorer has problems with CSS sprite buttons that use HTML
-    // lists.  When you click on the background image "button", IE will 
+    // lists.  When you click on the background image "button", IE will
     // select the non-existent link text and discard the selection in the
     // textarea.  The solution to this is to cache the textarea selection
     // on the button's mousedown event and set a flag.  In the part of the
@@ -317,8 +384,10 @@
         var flags;
 
         // Replace the flags with empty space and store them.
-        pattern = pattern.replace(/\/([gim]*)$/, "");
-        flags = re.$1;
+        pattern = pattern.replace(/\/([gim]*)$/, function (wholeMatch, flagsPart) {
+            flags = flagsPart;
+            return "";
+        });
 
         // Remove the slash delimiters on the regular expression.
         pattern = pattern.replace(/(^\/|\/$)/g, "");
@@ -510,13 +579,13 @@
 
             var handled = false;
 
-            if (event.ctrlKey || event.metaKey) {
+            if ((event.ctrlKey || event.metaKey) && !event.altKey) {
 
                 // IE and Opera do not support charCode.
                 var keyCode = event.charCode || event.keyCode;
                 var keyCodeChar = String.fromCharCode(keyCode);
 
-                switch (keyCodeChar) {
+                switch (keyCodeChar.toLowerCase()) {
 
                     case "y":
                         undoObj.redo();
@@ -573,7 +642,7 @@
                     setMode("escape");
                 }
                 else if ((keyCode < 16 || keyCode > 20) && keyCode != 91) {
-                    // 16-20 are shift, etc. 
+                    // 16-20 are shift, etc.
                     // 91: left window key
                     // I think this might be a little messed up since there are
                     // a lot of nonprinting keys above 20.
@@ -586,7 +655,7 @@
             util.addEvent(panels.input, "keypress", function (event) {
                 // keyCode 89: y
                 // keyCode 90: z
-                if ((event.ctrlKey || event.metaKey) && (event.keyCode == 89 || event.keyCode == 90)) {
+                if ((event.ctrlKey || event.metaKey) && !event.altKey && (event.keyCode == 89 || event.keyCode == 90)) {
                     event.preventDefault();
                 }
             });
@@ -717,7 +786,7 @@
 
                 if (panels.ieCachedRange)
                     stateObj.scrollTop = panels.ieCachedScrollTop; // this is set alongside with ieCachedRange
-                
+
                 panels.ieCachedRange = null;
 
                 this.setInputAreaSelection();
@@ -1001,10 +1070,12 @@
     //
     // text: The html for the input box.
     // defaultInputText: The default value that appears in the input box.
+    // ok: The text for the OK button
+    // cancel: The text for the Cancel button
     // callback: The function which is executed when the prompt is dismissed, either via OK or Cancel.
     //      It receives a single argument; either the entered text (if OK was chosen) or null (if Cancel
     //      was chosen).
-    ui.prompt = function (text, defaultInputText, callback) {
+    ui.prompt = function (text, defaultInputText, ok, cancel, callback) {
 
         // These variables need to be declared at this level since they are used
         // in multiple functions.
@@ -1021,7 +1092,9 @@
         var checkEscape = function (key) {
             var code = (key.charCode || key.keyCode);
             if (code === 27) {
+                if (key.stopPropagation) key.stopPropagation();
                 close(true);
+                return false;
             }
         };
 
@@ -1029,7 +1102,7 @@
         // isCancel is true if we don't care about the input text.
         // isCancel is false if we are going to keep the text.
         var close = function (isCancel) {
-            util.removeEvent(doc.body, "keydown", checkEscape);
+            util.removeEvent(doc.body, "keyup", checkEscape);
             var text = input.value;
 
             if (isCancel) {
@@ -1037,13 +1110,9 @@
             }
             else {
                 // Fixes common pasting errors.
-                text = text.replace('http://http://', 'http://');
-                text = text.replace('http://https://', 'https://');
-                text = text.replace('http://ftp://', 'ftp://');
-
-                if (text.indexOf('http://') === -1 && text.indexOf('ftp://') === -1 && text.indexOf('https://') === -1) {
+                text = text.replace(/^http:\/\/(https?|ftp):\/\//, '$1://');
+                if (!/^(?:https?|ftp):\/\//.test(text))
                     text = 'http://' + text;
-                }
             }
 
             dialog.parentNode.removeChild(dialog);
@@ -1055,7 +1124,7 @@
 
 
         // Create the text input box form/window.
-        var createDialog = function () {
+        var createDialog = function (ok, cancel) {
 
             // The main dialog box.
             dialog = doc.createElement("div");
@@ -1097,7 +1166,7 @@
             var okButton = doc.createElement("input");
             okButton.type = "button";
             okButton.onclick = function () { return close(false); };
-            okButton.value = "OK";
+            okButton.value = ok;
             style = okButton.style;
             style.margin = "10px";
             style.display = "inline";
@@ -1108,7 +1177,7 @@
             var cancelButton = doc.createElement("input");
             cancelButton.type = "button";
             cancelButton.onclick = function () { return close(true); };
-            cancelButton.value = "Cancel";
+            cancelButton.value = cancel;
             style = cancelButton.style;
             style.margin = "10px";
             style.display = "inline";
@@ -1117,7 +1186,7 @@
             form.appendChild(okButton);
             form.appendChild(cancelButton);
 
-            util.addEvent(doc.body, "keydown", checkEscape);
+            util.addEvent(doc.body, "keyup", checkEscape);
             dialog.style.top = "50%";
             dialog.style.left = "50%";
             dialog.style.display = "block";
@@ -1134,12 +1203,11 @@
             dialog.style.marginLeft = -(position.getWidth(dialog) / 2) + "px";
 
         };
-
         // Why is this in a zero-length timeout?
         // Is it working around a browser bug?
         setTimeout(function () {
 
-            createDialog();
+            createDialog(ok, cancel);
 
             var defTextLen = defaultInputText.length;
             if (input.selectionStart !== undefined) {
@@ -1158,7 +1226,7 @@
         }, 0);
     };
 
-    function UIManager(postfix, panels, undoManager, previewManager, commandManager, helpOptions) {
+    function UIManager(postfix, panels, undoManager, previewManager, commandManager, helpOptions, getString) {
 
         var inputBox = panels.input,
             buttons = {}; // buttons.undo, buttons.link, etc. The actual DOM elements.
@@ -1173,7 +1241,7 @@
         util.addEvent(inputBox, keyEvent, function (key) {
 
             // Check to see if we have a button key and, if so execute the callback.
-            if ((key.ctrlKey || key.metaKey) && !key.altKey) {
+            if ((key.ctrlKey || key.metaKey) && !key.altKey && !key.shiftKey) {
 
                 var keyCode = key.charCode || key.keyCode;
                 var keyCodeStr = String.fromCharCode(keyCode).toLowerCase();
@@ -1241,7 +1309,7 @@
                 var keyCode = key.charCode || key.keyCode;
                 // Character 13 is Enter
                 if (keyCode === 13) {
-                    fakeButton = {};
+                    var fakeButton = {};
                     fakeButton.textOp = bindCommand("doAutoindent");
                     doClick(fakeButton);
                 }
@@ -1286,7 +1354,7 @@
                 //
                 // var link = CreateLinkDialog();
                 // makeMarkdownLink(link);
-                // 
+                //
                 // Instead of this straightforward method of handling a
                 // dialog I have to pass any code which would execute
                 // after the dialog is dismissed (e.g. link creation)
@@ -1408,33 +1476,33 @@
                 xPosition += 25;
             }
 
-            buttons.bold = makeButton("wmd-bold-button", "Strong <strong> Ctrl+B", "0px", bindCommand("doBold"));
-            buttons.italic = makeButton("wmd-italic-button", "Emphasis <em> Ctrl+I", "-20px", bindCommand("doItalic"));
+            buttons.bold = makeButton("wmd-bold-button", getString("bold"), "0px", bindCommand("doBold"));
+            buttons.italic = makeButton("wmd-italic-button", getString("italic"), "-20px", bindCommand("doItalic"));
             makeSpacer(1);
-            buttons.link = makeButton("wmd-link-button", "Hyperlink <a> Ctrl+L", "-40px", bindCommand(function (chunk, postProcessing) {
+            buttons.link = makeButton("wmd-link-button", getString("link"), "-40px", bindCommand(function (chunk, postProcessing) {
                 return this.doLinkOrImage(chunk, postProcessing, false);
             }));
-            buttons.quote = makeButton("wmd-quote-button", "Blockquote <blockquote> Ctrl+Q", "-60px", bindCommand("doBlockquote"));
-            buttons.code = makeButton("wmd-code-button", "Code Sample <pre><code> Ctrl+K", "-80px", bindCommand("doCode"));
-            buttons.image = makeButton("wmd-image-button", "Image <img> Ctrl+G", "-100px", bindCommand(function (chunk, postProcessing) {
+            buttons.quote = makeButton("wmd-quote-button", getString("quote"), "-60px", bindCommand("doBlockquote"));
+            buttons.code = makeButton("wmd-code-button", getString("code"), "-80px", bindCommand("doCode"));
+            buttons.image = makeButton("wmd-image-button", getString("image"), "-100px", bindCommand(function (chunk, postProcessing) {
                 return this.doLinkOrImage(chunk, postProcessing, true);
             }));
             makeSpacer(2);
-            buttons.olist = makeButton("wmd-olist-button", "Numbered List <ol> Ctrl+O", "-120px", bindCommand(function (chunk, postProcessing) {
+            buttons.olist = makeButton("wmd-olist-button", getString("olist"), "-120px", bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, true);
             }));
-            buttons.ulist = makeButton("wmd-ulist-button", "Bulleted List <ul> Ctrl+U", "-140px", bindCommand(function (chunk, postProcessing) {
+            buttons.ulist = makeButton("wmd-ulist-button", getString("ulist"), "-140px", bindCommand(function (chunk, postProcessing) {
                 this.doList(chunk, postProcessing, false);
             }));
-            buttons.heading = makeButton("wmd-heading-button", "Heading <h1>/<h2> Ctrl+H", "-160px", bindCommand("doHeading"));
-            buttons.hr = makeButton("wmd-hr-button", "Horizontal Rule <hr> Ctrl+R", "-180px", bindCommand("doHorizontalRule"));
+            buttons.heading = makeButton("wmd-heading-button", getString("heading"), "-160px", bindCommand("doHeading"));
+            buttons.hr = makeButton("wmd-hr-button", getString("hr"), "-180px", bindCommand("doHorizontalRule"));
             makeSpacer(3);
-            buttons.undo = makeButton("wmd-undo-button", "Undo - Ctrl+Z", "-200px", null);
+            buttons.undo = makeButton("wmd-undo-button", getString("undo"), "-200px", null);
             buttons.undo.execute = function (manager) { if (manager) manager.undo(); };
 
             var redoTitle = /win/.test(nav.platform.toLowerCase()) ?
-                "Redo - Ctrl+Y" :
-                "Redo - Ctrl+Shift+Z"; // mac and other non-Windows platforms
+                getString("redo") :
+                getString("redomac"); // mac and other non-Windows platforms
 
             buttons.redo = makeButton("wmd-redo-button", redoTitle, "-220px", null);
             buttons.redo.execute = function (manager) { if (manager) manager.redo(); };
@@ -1448,7 +1516,7 @@
                 helpButton.XShift = "-240px";
                 helpButton.isHelp = true;
                 helpButton.style.right = "0px";
-                helpButton.title = helpOptions.title || defaultHelpHoverTitle;
+                helpButton.title = getString("help");
                 helpButton.onclick = helpOptions.handler;
 
                 setupButton(helpButton, true);
@@ -1470,8 +1538,12 @@
 
     }
 
-    function CommandManager(pluginHooks) {
+    function CommandManager(pluginHooks, getString, converter, wrapImageInLink, convertImagesToLinks) {
         this.hooks = pluginHooks;
+        this.getString = getString;
+        this.converter = converter;
+        this.wrapImageInLink = wrapImageInLink;
+        this.convertImagesToLinks = convertImagesToLinks;
     }
 
     var commandProto = CommandManager.prototype;
@@ -1501,11 +1573,11 @@
     };
 
     commandProto.doBold = function (chunk, postProcessing) {
-        return this.doBorI(chunk, postProcessing, 2, "strong text");
+        return this.doBorI(chunk, postProcessing, 2, this.getString("boldexample"));
     };
 
     commandProto.doItalic = function (chunk, postProcessing) {
-        return this.doBorI(chunk, postProcessing, 1, "emphasized text");
+        return this.doBorI(chunk, postProcessing, 1, this.getString("italicexample"));
     };
 
     // chunk: The selected region that will be enclosed with */**
@@ -1580,38 +1652,94 @@
         chunk.after = this.stripLinkDefs(chunk.after, defsToAdd);
 
         var defs = "";
-        var regex = /(\[)((?:\[[^\]]*\]|[^\[\]])*)(\][ ]?(?:\n[ ]*)?\[)(\d+)(\])/g;
+        var regex = /\[(\d+)\]/g;
+        
+        // The above regex, used to update [foo][13] references after renumbering,
+        // is much too liberal; it can catch things that are not actually parsed
+        // as references (notably: code). It's impossible to know which matches are
+        // real references without performing a markdown conversion, so that's what
+        // we do. All matches are replaced with a unique reference number, which is
+        // given a unique link. The uniquifier in both cases is the character offset
+        // of the match inside the source string. The modified version is then sent
+        // through the Markdown renderer. Because link reference are stripped during
+        // rendering, the unique link is present in the rendered version if and only
+        // if the match at its offset was in fact rendered as a link or image.
+        var complete = chunk.before + chunk.selection + chunk.after;
+        var rendered = this.converter.makeHtml(complete);
+        var testlink = "http://this-is-a-real-link.biz/";
+        
+        // If our fake link appears in the rendered version *before* we have added it,
+        // this probably means you're a Meta Stack Exchange user who is deliberately
+        // trying to break this feature. You can still break this workaround if you
+        // attach a plugin to the converter that sometimes (!) inserts this link. In
+        // that case, consider yourself unsupported.
+        while (rendered.indexOf(testlink) != -1)
+            testlink += "nicetry/";
+        
+        var fakedefs = "\n\n";
 
-        var addDefNumber = function (def) {
+        var uniquified = complete.replace(regex, function uniquify(wholeMatch, id, offset) {
+            fakedefs += " [" + offset + "]: " + testlink + offset + "/unicorn\n";
+            return "[" + offset + "]";
+        });
+        
+        rendered = this.converter.makeHtml(uniquified + fakedefs);
+        
+        var okayToModify = function(offset) {
+            return rendered.indexOf(testlink + offset + "/unicorn") !== -1;
+        }
+        
+        // property names are "L_" + link (prefixed to prevent collisions with built-in properties),
+        // values are the definition numbers
+        var addedDefsByUrl = {};
+        var addOrReuseDefNumber = function (def) {
+            var stripped = def.replace(/^[ ]{0,3}\[(\d+)\]:/, "");
+            var key = "L_" + stripped;
+            if (key in addedDefsByUrl)
+                return addedDefsByUrl[key];
             refNumber++;
-            def = def.replace(/^[ ]{0,3}\[(\d+)\]:/, "  [" + refNumber + "]:");
+            def = "  [" + refNumber + "]:" + stripped;
             defs += "\n" + def;
+            addedDefsByUrl[key] = refNumber;
+            return refNumber;
         };
+
+        // the regex is tested on the (up to) three chunks separately,
+        // so in order to have the correct offsets to check against okayToModify(), we
+        // have to keep track of how many characters are in the original source before
+        // the substring that we're looking at. Note that doLinkOrImage aligns the selection
+        // on potential brackets, so there should be no major breakage from the chunk
+        // separation.
+        var skippedChars = 0;
 
         // note that
         // a) the recursive call to getLink cannot go infinite, because by definition
         //    of regex, inner is always a proper substring of wholeMatch, and
         // b) more than one level of nesting is neither supported by the regex
         //    nor making a lot of sense (the only use case for nesting is a linked image)
-        var getLink = function (wholeMatch, before, inner, afterInner, id, end) {
-            inner = inner.replace(regex, getLink);
+        var getLink = function (wholeMatch, id, offset) {
+            if (!okayToModify(skippedChars + offset))
+                return wholeMatch;
             if (defsToAdd[id]) {
-                addDefNumber(defsToAdd[id]);
-                return before + inner + afterInner + refNumber + end;
+                var refnum = addOrReuseDefNumber(defsToAdd[id]);
+                return "[" + refnum + "]";
             }
             return wholeMatch;
         };
 
+        var len = chunk.before.length;
         chunk.before = chunk.before.replace(regex, getLink);
-
+        skippedChars += len;
+        
+        len = chunk.selection.length;
+        var refOut;
         if (linkDef) {
-            addDefNumber(linkDef);
+            refOut = addOrReuseDefNumber(linkDef);
         }
         else {
             chunk.selection = chunk.selection.replace(regex, getLink);
         }
-
-        var refOut = refNumber;
+        skippedChars += len;        
 
         chunk.after = chunk.after.replace(regex, getLink);
 
@@ -1631,17 +1759,46 @@
     // sure the URL and the optinal title are "nice".
     function properlyEncoded(linkdef) {
         return linkdef.replace(/^\s*(.*?)(?:\s+"(.+)")?\s*$/, function (wholematch, link, title) {
-            link = link.replace(/\?.*$/, function (querypart) {
-                return querypart.replace(/\+/g, " "); // in the query string, a plus and a space are identical
-            });
-            link = decodeURIComponent(link); // unencode first, to prevent double encoding
-            link = encodeURI(link).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
-            link = link.replace(/\?.*$/, function (querypart) {
-                return querypart.replace(/\+/g, "%2b"); // since we replaced plus with spaces in the query part, all pluses that now appear where originally encoded
-            });
+            
+            var inQueryString = false;
+
+            // Having `[^\w\d-./]` in there is just a shortcut that lets us skip
+            // the most common characters in URLs. Replacing that it with `.` would not change
+            // the result, because encodeURI returns those characters unchanged, but it
+            // would mean lots of unnecessary replacement calls. Having `[` and `]` in that
+            // section as well means we do *not* enocde square brackets. These characters are
+            // a strange beast in URLs, but if anything, this causes URLs to be more readable,
+            // and we leave it to the browser to make sure that these links are handled without
+            // problems.
+            link = link.replace(/%(?:[\da-fA-F]{2})|\?|\+|[^\w\d-./[\]]/g, function (match) {
+                // Valid percent encoding. Could just return it as is, but we follow RFC3986
+                // Section 2.1 which says "For consistency, URI producers and normalizers
+                // should use uppercase hexadecimal digits for all percent-encodings."
+                // Note that we also handle (illegal) stand-alone percent characters by
+                // replacing them with "%25"
+                if (match.length === 3 && match.charAt(0) == "%") {
+                    return match.toUpperCase();
+                }
+                switch (match) {
+                    case "?":
+                        inQueryString = true;
+                        return "?";
+                        break;
+                    
+                    // In the query string, a plus and a space are identical -- normalize.
+                    // Not strictly necessary, but identical behavior to the previous version
+                    // of this function.
+                    case "+":
+                        if (inQueryString)
+                            return "%20";
+                        break;
+                }
+                return encodeURI(match);
+            })
+            
             if (title) {
                 title = title.trim ? title.trim() : title.replace(/^\s*/, "").replace(/\s*$/, "");
-                title = $.trim(title).replace(/"/g, "quot;").replace(/\(/g, "&#40;").replace(/\)/g, "&#41;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                title = title.replace(/"/g, "quot;").replace(/\(/g, "&#40;").replace(/\)/g, "&#41;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
             }
             return title ? link + ' "' + title + '"' : link;
         });
@@ -1652,6 +1809,8 @@
         chunk.trimWhitespace();
         chunk.findTags(/\s*!?\[/, /\][ ]?(?:\n[ ]*)?(\[.*?\])?/);
         var background;
+        var wrapImageInLink = this.wrapImageInLink;
+        var convertImagesToLinks = this.convertImagesToLinks;
 
         if (chunk.endTag.length > 1 && chunk.startTag.length > 0) {
 
@@ -1703,16 +1862,32 @@
                     var linkDef = " [999]: " + properlyEncoded(link);
 
                     var num = that.addLinkDef(chunk, linkDef);
-                    chunk.startTag = isImage ? "![" : "[";
-                    chunk.endTag = "][" + num + "]";
+                    if (!isImage || (wrapImageInLink && !convertImagesToLinks))
+                    {
+                        chunk.startTag = "[";
+                        chunk.endTag = "][" + num + "]";
+                    }
+                    if (isImage)
+                    {
+                        if (!convertImagesToLinks) {
+                            chunk.startTag += "![";
+                        } else {
+                            chunk.startTag += "[";
+                        }
+                        chunk.endTag = "][" + num + "]" + chunk.endTag;
+                    }
 
                     if (!chunk.selection) {
                         if (isImage) {
-                            chunk.selection = "enter image description here";
+                            chunk.selection = that.getString("imagedescription");
                         }
                         else {
-                            chunk.selection = "enter link description here";
+                            chunk.selection = that.getString("linkdescription");
                         }
+                    }
+
+                    if (isImage && convertImagesToLinks) {
+                        that.hooks.imageConvertedToLink();
                     }
                 }
                 postProcessing();
@@ -1722,10 +1897,11 @@
 
             if (isImage) {
                 if (!this.hooks.insertImageDialog(linkEnteredCallback))
-                    ui.prompt(imageDialogText, imageDefaultText, linkEnteredCallback);
+                    ui.prompt(this.getString("imagedialog"), imageDefaultText, this.getString("ok"), this.getString("cancel"), linkEnteredCallback);
             }
             else {
-                ui.prompt(linkDialogText, linkDefaultText, linkEnteredCallback);
+                if (!this.hooks.insertLinkDialog(linkEnteredCallback))
+                    ui.prompt(this.getString("linkdialog"), linkDefaultText, this.getString("ok"), this.getString("cancel"), linkEnteredCallback);
             }
             return true;
         }
@@ -1735,11 +1911,24 @@
     // at the current indent level.
     commandProto.doAutoindent = function (chunk, postProcessing) {
 
-        var commandMgr = this;
+        var commandMgr = this,
+            fakeSelection = false;
 
         chunk.before = chunk.before.replace(/(\n|^)[ ]{0,3}([*+-]|\d+[.])[ \t]*\n$/, "\n\n");
         chunk.before = chunk.before.replace(/(\n|^)[ ]{0,3}>[ \t]*\n$/, "\n\n");
         chunk.before = chunk.before.replace(/(\n|^)[ \t]+\n$/, "\n\n");
+        
+        // There's no selection, end the cursor wasn't at the end of the line:
+        // The user wants to split the current list item / code line / blockquote line
+        // (for the latter it doesn't really matter) in two. Temporarily select the
+        // (rest of the) line to achieve this.
+        if (!chunk.selection && !/^[ \t]*(?:\n|$)/.test(chunk.after)) {
+            chunk.after = chunk.after.replace(/^[^\n]*/, function (wholeMatch) {
+                chunk.selection = wholeMatch;
+                return "";
+            });
+            fakeSelection = true;
+        }
 
         if (/(\n|^)[ ]{0,3}([*+-]|\d+[.])[ \t]+.*\n$/.test(chunk.before)) {
             if (commandMgr.doList) {
@@ -1755,6 +1944,11 @@
             if (commandMgr.doCode) {
                 commandMgr.doCode(chunk);
             }
+        }
+        
+        if (fakeSelection) {
+            chunk.after = chunk.selection + chunk.after;
+            chunk.selection = "";
         }
     };
 
@@ -1774,7 +1968,7 @@
             });
 
         chunk.selection = chunk.selection.replace(/^(\s|>)+$/, "");
-        chunk.selection = chunk.selection || "Blockquote";
+        chunk.selection = chunk.selection || this.getString("quoteexample");
 
         // The original code uses a regular expression to find out how much of the
         // text *directly before* the selection already was a blockquote:
@@ -1794,14 +1988,14 @@
         // Go backwards as many lines a possible, such that each line
         //  a) starts with ">", or
         //  b) is almost empty, except for whitespace, or
-        //  c) is preceeded by an unbroken chain of non-empty lines
+        //  c) is preceded by an unbroken chain of non-empty lines
         //     leading up to a line that starts with ">" and at least one more character
         // and in addition
         //  d) at least one line fulfills a)
         //
         // Since this is essentially a backwards-moving regex, it's susceptible to
         // catstrophic backtracking and can cause the browser to hang;
-        // see e.g. http://meta.stackoverflow.com/questions/9807.
+        // see e.g. http://meta.stackexchange.com/questions/9807.
         //
         // Hence we replaced this by a simple state machine that just goes through the
         // lines and checks for a), b), and c).
@@ -1920,7 +2114,7 @@
             var nLinesBack = 1;
             var nLinesForward = 1;
 
-            if (/\n(\t|[ ]{4,}).*\n$/.test(chunk.before)) {
+            if (/(\n|^)(\t|[ ]{4,}).*\n$/.test(chunk.before)) {
                 nLinesBack = 0;
             }
             if (/^\n(\t|[ ]{4,})/.test(chunk.after)) {
@@ -1931,14 +2125,17 @@
 
             if (!chunk.selection) {
                 chunk.startTag = "    ";
-                chunk.selection = "enter code here";
+                chunk.selection = this.getString("codeexample");
             }
             else {
                 if (/^[ ]{0,3}\S/m.test(chunk.selection)) {
-                    chunk.selection = chunk.selection.replace(/^/gm, "    ");
+                    if (/\n/.test(chunk.selection))
+                        chunk.selection = chunk.selection.replace(/^/gm, "    ");
+                    else // if it's not multiline, do not select the four added spaces; this is more consistent with the doList behavior
+                        chunk.before += "    ";
                 }
                 else {
-                    chunk.selection = chunk.selection.replace(/^[ ]{4}/gm, "");
+                    chunk.selection = chunk.selection.replace(/^(?:[ ]{4}|[ ]{0,3}\t)/gm, "");
                 }
             }
         }
@@ -1951,7 +2148,7 @@
             if (!chunk.startTag && !chunk.endTag) {
                 chunk.startTag = chunk.endTag = "`";
                 if (!chunk.selection) {
-                    chunk.selection = "enter code here";
+                    chunk.selection = this.getString("codeexample");
                 }
             }
             else if (chunk.endTag && !chunk.startTag) {
@@ -2045,7 +2242,7 @@
             });
 
         if (!chunk.selection) {
-            chunk.selection = "List item";
+            chunk.selection = this.getString("litem");
         }
 
         var prefix = getItemPrefix();
@@ -2077,7 +2274,7 @@
         // make a level 2 hash header around some default text.
         if (!chunk.selection) {
             chunk.startTag = "## ";
-            chunk.selection = "Heading";
+            chunk.selection = this.getString("headingexample");
             chunk.endTag = " ##";
             return;
         }
@@ -2106,7 +2303,7 @@
         chunk.skipLines(1, 1);
 
         // We make a level 2 header if there is no current header.
-        // If there is a header level, we substract one from the header level.
+        // If there is a header level, we subtract one from the header level.
         // If it's already a level 1 header, it's removed.
         var headerLevelToCreate = headerLevel == 0 ? 2 : headerLevel - 1;
 

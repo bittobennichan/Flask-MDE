@@ -9,7 +9,7 @@ loadMDE = function(){
         converter.hooks.chain("postConversion", function (text) {
             return text.replace(/<pre>/gi, "<pre class=prettyprint>");
         });
-    
+        Markdown.Extra.init(converter);
     
         let editor = new Markdown.Editor(converter);
         editor.hooks.chain("onPreviewRefresh", function () {
@@ -23,7 +23,7 @@ loadMDE = function(){
             ; // So pass 
         }
         else{
-            console.log('MDE Editor not Loaded: ' + e);
+            console.log('MDE Editor not Loaded: ' + err);
         }   
     } 
 }

@@ -22,7 +22,7 @@ copyright = '2019, Bitto Bennichan'
 author = 'Bitto Bennichan'
 
 # The full version, including alpha/beta/rc tags
-release = '1.1.2'
+release = '1.2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -59,7 +59,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = 'alabaster'
 master_doc = 'index'
 html_theme_options = {
-    'description': 'Pagedown Editor with WTForms integration for Flask',
+    'description': 'Markdown editor with WTForms integration for Flask',
     'sidebar_collapse': False,
     'github_user': 'bittobennichan',
     'github_repo': 'Flask-MDE',
@@ -68,7 +68,8 @@ html_theme_options = {
     'sidebar_header': '#3E4349',
     'fixed_sidebar': False,
     'github_banner': True,
-    'logo': 'logo.png',
+    # If available should be in _static/logo.png
+    # 'logo': 'logo.png',
     'show_powered_by': True
 }
 # Add any paths that contain custom static files (such as style sheets) here,

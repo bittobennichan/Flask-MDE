@@ -12,7 +12,7 @@ run the command
 
 ..  code-block:: text
 
-    $ pip install Flask-MDE
+    pip install Flask-MDE
 
 in your terminal.
 
@@ -189,6 +189,13 @@ Flask-MDE provides the ``make-pretty`` css class to make your HTML similar to th
         {{mde.js}}
     </body>
     </html>
+
+Pagedown Extra
+##############
+From v1.2.0 Flask-MDE supports `pagedown-extra <https://github.com/jmcmanus/pagedown-extra>`_.
+Pagedown Extra is a collection of Pagedown plugins to enable support for Markdown Extra syntax (such as tables). 
+Checkout the example application code in the Github repo see how you can integrate using *python-markdown* and *pymdown-extensions*.
+
 
 Example application
 ###################
