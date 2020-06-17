@@ -14,6 +14,9 @@ Release v1.2.0 | `Example application <https://markdowneditor.pythonanywhere.com
 
 .. image:: https://readthedocs.org/projects/flask-mde/badge/?version=latest
     :target: https://flask-mde.readthedocs.io/en/latest/?badge=latest
+   
+.. image:: https://pepy.tech/badge/flask-mde
+    :target: https://pepy.tech/project/flask-mde
 
 -------------------
 
