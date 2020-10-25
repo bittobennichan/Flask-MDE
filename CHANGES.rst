@@ -3,6 +3,12 @@ Flask-MDE Changelog
 
 FLask-MDE follows `Semantic Versioning 2.0.0 <https://semver.org/>`_
 
+1.2.1
+-----
+
+* Replaced `HTMLString` with `markupsafe.Markup` for `MdeField`. `Github Issue # 7 - Button Bar Not Displaying <https://github.com/jmcmanus/pagedown-extra>`_.
+
+
 1.2.0
 -----
 

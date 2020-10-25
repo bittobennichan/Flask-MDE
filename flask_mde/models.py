@@ -1,7 +1,6 @@
 from markupsafe import Markup
 from flask import Blueprint
 from wtforms.fields import TextAreaField
-from wtforms.widgets import HTMLString
 import os
 
 
@@ -16,10 +15,8 @@ class MdeField(TextAreaField):
 
     """
     def __call__(self, id='wmd-input', **kwargs):
-        button_bar = '<div id="wmd-button-bar"></div>'
-        return HTMLString(
-            button_bar + super(MdeField, self).__call__(id=id, **kwargs)
-        )
+        button_bar = Markup('<div id="wmd-button-bar"></div>')
+        return button_bar + super().__call__(id=id, **kwargs)
 
 
 class Mde(object):
