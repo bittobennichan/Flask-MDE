@@ -1,7 +1,7 @@
 Flask-MDE: Pagedown for Flask
 =============================
 
-Release v1.2.0 | `Example application <https://markdowneditor.pythonanywhere.com/>`_
+Release v1.2.1 | `Example application <https://markdowneditor.pythonanywhere.com/>`_
 
 .. image:: https://img.shields.io/pypi/v/flask_mde
     :target: https://pypi.org/project/flask_mde/

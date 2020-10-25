@@ -22,7 +22,7 @@ copyright = '2019, Bitto Bennichan'
 author = 'Bitto Bennichan'
 
 # The full version, including alpha/beta/rc tags
-release = '1.2.0'
+release = '1.2.1'
 
 
 # -- General configuration ---------------------------------------------------
