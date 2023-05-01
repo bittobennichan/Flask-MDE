@@ -1,6 +1,6 @@
 bleach==3.3.0
 Click==7.0
-Flask==1.1.1
+Flask==2.3.2
 Flask-MDE==1.2.1
 Flask-WTF==0.14.2
 itsdangerous==1.1.0
